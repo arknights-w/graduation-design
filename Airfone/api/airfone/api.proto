@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package api.airfone;
+
+option go_package = "Airfone/api/airfone;airfone";
+option java_multiple_files = true;
+option java_package = "api.airfone";
+
+service Airfone {
+	// rpc CreateService (CreateServiceRequest) returns (CreateServiceReply);
+	// rpc UpdateService (UpdateServiceRequest) returns (UpdateServiceReply);
+	// rpc DeleteService (DeleteServiceRequest) returns (DeleteServiceReply);
+	// rpc GetService (GetServiceRequest) returns (GetServiceReply);
+	// rpc ListService (ListServiceRequest) returns (ListServiceReply);
+}

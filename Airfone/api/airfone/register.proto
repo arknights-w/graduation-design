@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package api.airfone;
+
+option go_package = "Airfone/api/airfone;airfone";
+option java_multiple_files = true;
+option java_package = "api.airfone";
+
+// 服务注册
+message Register {
+
+}
+
+message RegisterRequest{
+
+}
+
+message RegisterResponse{
+    
+}

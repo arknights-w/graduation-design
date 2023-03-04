@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package api.airfone;
+
+option go_package = "Airfone/api/airfone;airfone";
+option java_multiple_files = true;
+option java_package = "api.airfone";
+
+// 心跳
+message Keepalive {
+    TickerType type = 1;
+}
+
+// 心跳返回信号
+enum TickerType {
+    OK      = 0; // 一切正常
+    CHANGED = 1; // 部分依赖内容已改变，需要重新拉取
+    ERROR   = 2; // 上游服务已崩坏，依赖服务不可用
+}
+
+message KeepaliveRequest{
+
+}
+
+message KeepaliveResponse{
+    TickerType status = 1;
+}
