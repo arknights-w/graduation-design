@@ -43,6 +43,16 @@ api:
  	       --go-grpc_out=paths=source_relative:./api \
 	       --openapi_out=fq_schema_naming=true,default_response=false:. \
 	       $(API_PROTO_FILES)
+	make errors
+
+.PHONY: errors
+# generate api proto
+errors:
+	protoc --proto_path=. \
+			--proto_path=./third_party \
+			--go_out=paths=source_relative:. \
+			--go-errors_out=paths=source_relative:. \
+			$(API_PROTO_FILES)
 
 .PHONY: build
 # build
