@@ -39,3 +39,4 @@ bin/
 
 # project generate file
 *.pb.go
+wire_gen.go

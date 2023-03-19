@@ -8,7 +8,8 @@ package main
 import (
 	"Airfone/internal/biz"
 	"Airfone/internal/conf"
-	"Airfone/internal/data"
+	"Airfone/internal/repo"
+	"Airfone/internal/engine"
 	"Airfone/internal/server"
 	"Airfone/internal/service"
 
@@ -19,5 +20,5 @@ import (
 
 // wireApp init kratos application.
 func wireApp(*conf.Server, *conf.Data, log.Logger) (*kratos.App, func(), error) {
-	panic(wire.Build(server.ProviderSet, data.ProviderSet, biz.ProviderSet, service.ProviderSet, newApp))
+	panic(wire.Build(server.ProviderSet, engine.ProviderSet, repo.ProviderSet, biz.ProviderSet, service.ProviderSet, newApp))
 }
