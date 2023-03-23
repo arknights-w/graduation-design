@@ -21,4 +21,6 @@ import "github.com/google/wire"
 //		3. 集群同步信息:  
 
 // ProviderSet is service providers.
-var ProviderSet = wire.NewSet(NewGreeterService)
+var ProviderSet = wire.NewSet(
+	NewAirfoneService,
+)

@@ -1,7 +1,7 @@
 package server
 
 import (
-	v1 "Airfone/api/helloworld/v1"
+	pb "Airfone/api/airfone"
 	"Airfone/internal/conf"
 	"Airfone/internal/service"
 
@@ -11,7 +11,9 @@ import (
 )
 
 // NewGRPCServer new a gRPC server.
-func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, logger *log.Helper) *grpc.Server {
+func NewGRPCServer(c *conf.Server, logger *log.Helper,
+	airfone *service.AirfoneService,
+) *grpc.Server {
 	var opts = []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),
@@ -27,6 +29,7 @@ func NewGRPCServer(c *conf.Server, greeter *service.GreeterService, logger *log.
 		opts = append(opts, grpc.Timeout(c.Grpc.Timeout.AsDuration()))
 	}
 	srv := grpc.NewServer(opts...)
-	v1.RegisterGreeterServer(srv, greeter)
+	// v1.RegisterGreeterServer(srv, greeter)
+	pb.RegisterAirfoneServer(srv, airfone)
 	return srv
 }

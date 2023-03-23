@@ -1,9 +1,9 @@
 package server
 
 import (
-	v1 "Airfone/api/helloworld/v1"
+	// v1 "Airfone/api/helloworld/v1"
 	"Airfone/internal/conf"
-	"Airfone/internal/service"
+	// "Airfone/internal/service"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
@@ -11,7 +11,9 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger *log.Helper) *http.Server {
+func NewHTTPServer(c *conf.Server, logger *log.Helper,
+	// greeter *service.GreeterService,
+) *http.Server {
 	var opts = []http.ServerOption{
 		http.Middleware(
 			recovery.Recovery(),
@@ -27,6 +29,6 @@ func NewHTTPServer(c *conf.Server, greeter *service.GreeterService, logger *log.
 		opts = append(opts, http.Timeout(c.Http.Timeout.AsDuration()))
 	}
 	srv := http.NewServer(opts...)
-	v1.RegisterGreeterHTTPServer(srv, greeter)
+	// v1.RegisterGreeterHTTPServer(srv, greeter)
 	return srv
 }

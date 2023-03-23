@@ -18,4 +18,4 @@ data 的主要链路是:
             └── current
 ```
 
-其中 topic_map，topic，running，pending，service都分别拥有自己的锁，这是为了细分锁的细粒度，避免大规模的程序拥塞
+其中 topic_map，topic，running，pending都分别拥有自己的锁，这是为了细分锁的细粒度，避免大规模的程序拥塞
