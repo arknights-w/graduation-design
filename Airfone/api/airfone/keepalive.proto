@@ -2,26 +2,27 @@ syntax = "proto3";
 
 package api.airfone;
 
+import "airfone/common.proto";
+
 option go_package = "Airfone/api/airfone;airfone";
 option java_multiple_files = true;
 option java_package = "api.airfone";
 
-// 心跳
-message Keepalive {
-    TickerType type = 1;
+message KeepAliveRequest{
+    string topic = 1; // 主题
+    int32  id    = 2; // id
 }
 
-// 心跳返回信号
-enum TickerType {
-    OK      = 0; // 一切正常
-    CHANGED = 1; // 部分依赖内容已改变，需要重新拉取
-    ERROR   = 2; // 上游服务已崩坏，依赖服务不可用
+message KeepAliveResponse{
+    Keepalive keepalive = 1;
 }
 
-message KeepaliveRequest{
-
+// 在检测到依赖修改后，需要发送 conform 保证自己的服务可用
+message ConformRequest{
+    string topic = 1;
+    int32 id = 2;
 }
 
-message KeepaliveResponse{
-    TickerType status = 1;
+message ConformResponse{
+
 }

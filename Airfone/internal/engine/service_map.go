@@ -17,28 +17,25 @@ func NewServiceMap() *ServiceMap {
 	}
 }
 
-func (sm *ServiceMap) Add(now int64, id int32, s *Service) (*Service, error) {
+func (sm *ServiceMap) Add(now int64, s *Service) (*Service, error) {
 	sm.Lock()
 	defer sm.Unlock()
-	if _, ok := sm.services[id]; ok {
+	if _, ok := sm.services[s.ID]; ok {
 		return nil, errorpb.ErrorInsertAlreadyExist("this service is already existed")
 	}
-	if s.ID == 0 {
-		s.ID = id
-	}
 	s.keepalive = now
-	sm.services[id] = s
+	sm.services[s.ID] = s
 	return s, nil
 }
 
-func (sm *ServiceMap) Update(now int64, id int32, s *Service) (*Service, error) {
+func (sm *ServiceMap) Update(now int64, s *Service) (*Service, error) {
 	sm.Lock()
 	defer sm.Unlock()
 	var (
 		service *Service
 		ok      bool
 	)
-	if service, ok = sm.services[id]; !ok {
+	if service, ok = sm.services[s.ID]; !ok {
 		return nil, errorpb.ErrorUpdateInvalid("this service is not exist")
 	}
 	if s.IP != "" {
@@ -81,18 +78,20 @@ func (sm *ServiceMap) Delete(now int64, id int32) (*Service, error) {
 		return nil, errorpb.ErrorDeleteInvalid("this service is not exist")
 	}
 	service.keepalive = now
-	service.Status = DROPPING
+	service.Status = HeartBeat_DROPPED
+	delete(sm.services, id)
 	return service, nil
 }
 
 // 依照时间将所有过期的数据删除，并返回被删除的数据
+//
+//	该方法需要手动加锁
+//	注意，由于 go 的锁是不可重入锁，并且有业务需要，该方法使用时需要从外部上锁
 func (sm *ServiceMap) BatchDeleteByCheckTime(now int64, duration time.Duration) ([]*Service, error) {
 	var (
 		servs = make([]*Service, 0, 3)
 		limit = now - int64(duration)
 	)
-	sm.Lock()
-	defer sm.Unlock()
 	for _, s := range sm.services {
 		if s.keepalive < limit {
 			servs = append(servs, s)
@@ -100,13 +99,16 @@ func (sm *ServiceMap) BatchDeleteByCheckTime(now int64, duration time.Duration) 
 	}
 	for _, s := range servs {
 		delete(sm.services, s.ID)
+		s.Status = HeartBeat_DROPPED
 	}
 	return servs, nil
 }
 
+// 批量添加
+//
+//	该方法需要手动加锁
+//	注意，由于 go 的锁是不可重入锁，并且有业务需要，该方法使用时需要从外部上锁
 func (sm *ServiceMap) BatchAdd(now int64, servs []*Service) error {
-	sm.Lock()
-	defer sm.Unlock()
 	for _, s := range servs {
 		if _, ok := sm.services[s.ID]; ok {
 			return errorpb.ErrorInsertAlreadyExist("this service is already existed")

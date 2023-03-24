@@ -2,7 +2,6 @@ package engine
 
 import (
 	"Airfone/api/errorpb"
-	"time"
 )
 
 // TopicMap about
@@ -16,11 +15,10 @@ import (
 func (tm *Data) addTopic(name string) (*Topic, error) {
 	tm.Lock()
 	defer tm.Unlock()
-	now := time.Now()
 	if _, ok := tm.topics[name]; ok {
 		return nil, errorpb.ErrorInsertAlreadyExist("this topic is already existed")
 	}
-	topic := NewTopic(now.UnixNano(), tm.log)
+	topic := NewTopic(tm.log)
 	tm.topics[name] = topic
 	return topic, nil
 }
@@ -61,8 +59,7 @@ func (tm *Data) getXTopic(name string) (*Topic, error) {
 	tm.Lock()
 	defer tm.Unlock()
 	if topic, ok = tm.topics[name]; !ok {
-		now := time.Now()
-		topic = NewTopic(now.UnixNano(), tm.log)
+		topic = NewTopic(tm.log)
 		tm.topics[name] = topic
 	}
 	return topic, nil

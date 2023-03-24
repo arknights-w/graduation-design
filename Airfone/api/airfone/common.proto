@@ -8,14 +8,39 @@ option java_package = "api.airfone";
 
 // 服务
 message Service {
-    string          name    = 1; // 服务名称
-    string          ip      = 2; // ip地址
-    string          prot    = 3; // 端口
-    repeated Schema schema  = 4; // 元数据信息
+    repeated Rely   relies  = 1; // 依赖
+    repeated Schema schema  = 2; // 元数据信息
+    string          topic   = 3; // 服务名称
+    string          ip      = 4; // ip地址
+    int32           prot    = 5; // 端口
+    int32           id      = 6; // id 号
+    HeartBeatType   status  = 7; // 服务状态
+}
+
+// 心跳
+message Keepalive {
+    HeartBeatType status = 1;      // 当前状态
+    repeated Rely relies = 2;   // 当状态为 changed 时，有相关依赖的变化
 }
 
 // 元数据
 message Schema {
     string title   = 1; // 元数据名称
     string content = 2; // 元数据内容
+}
+
+// 依赖
+message Rely {
+    string topic = 1; // 依赖的主题，或者说依赖的服务名称
+    string url   = 2; // 依赖服务的url
+    int32  port  = 3; // 依赖服务的端口
+    int32  id    = 4; // 所依赖的服务的id
+}
+
+// 心跳返回信号
+enum HeartBeatType {
+    HeartBeat_RUNNING  = 0; // 一切正常
+    HeartBeat_CHANGED  = 1; // 部分依赖内容已改变，需要重新拉取
+    HeartBeat_PENDING  = 2; // 上游服务已崩坏，依赖服务不可用，当前服务需要阻塞
+    HeartBeat_DROPPED  = 3; // 自身因延迟已被服务端删除，需要重新注册
 }
