@@ -37,7 +37,7 @@ func (hb *HeartBeat) ToProto() *pb.Keepalive {
 	for i, r := range hb.Rely {
 		relies[i] = &pb.Rely{
 			Topic: r.Topic,
-			Url:   r.IP,
+			Ip:   r.IP,
 			Port:  int32(r.Port),
 			Id:    r.ID,
 		}

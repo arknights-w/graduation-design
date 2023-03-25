@@ -27,7 +27,7 @@ func (s *Service) ToProto() *pb.Service {
 	for i, r := range s.Rely {
 		relies[i] = &pb.Rely{
 			Topic: r.Topic,
-			Url:   r.IP,
+			Ip:   r.IP,
 			Port:  int32(r.Port),
 			Id:    r.ID,
 		}

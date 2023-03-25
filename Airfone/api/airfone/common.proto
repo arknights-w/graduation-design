@@ -32,7 +32,7 @@ message Schema {
 // 依赖
 message Rely {
     string topic = 1; // 依赖的主题，或者说依赖的服务名称
-    string url   = 2; // 依赖服务的url
+    string ip   = 2; // 依赖服务的url
     int32  port  = 3; // 依赖服务的端口
     int32  id    = 4; // 所依赖的服务的id
 }
