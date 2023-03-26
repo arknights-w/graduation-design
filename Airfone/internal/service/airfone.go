@@ -60,7 +60,7 @@ func (s *AirfoneService) Update(ctx context.Context, req *pb.UpdateRequest) (*pb
 	service.Topic = req.Topic
 	service.IP = req.Ip
 	service.Port = uint16(req.Port)
-	if req.Schema != nil {
+	if req.NeedSchema {
 		for i, s2 := range req.Schema {
 			schema[i] = &engine.Schema{
 				Title:   s2.Title,
@@ -69,8 +69,15 @@ func (s *AirfoneService) Update(ctx context.Context, req *pb.UpdateRequest) (*pb
 		}
 		service.Schema = schema
 	}
-
-	service, err = s.ruc.Update(ctx, service, req.Relies)
+	if req.NeedRelies{
+		if len(req.Relies) == 0{
+			service, err = s.ruc.Update(ctx, service, make([]string, 0))
+		}else {
+			service, err = s.ruc.Update(ctx, service, req.Relies)
+		}
+	}else {
+		service, err = s.ruc.Update(ctx, service, nil)
+	}
 	if err != nil {
 		return nil, err
 	}

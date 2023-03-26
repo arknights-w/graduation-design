@@ -28,32 +28,6 @@ func (sm *ServiceMap) Add(now int64, s *Service) (*Service, error) {
 	return s, nil
 }
 
-func (sm *ServiceMap) Update(now int64, s *Service) (*Service, error) {
-	sm.Lock()
-	defer sm.Unlock()
-	var (
-		service *Service
-		ok      bool
-	)
-	if service, ok = sm.services[s.ID]; !ok {
-		return nil, errorpb.ErrorUpdateInvalid("this service is not exist")
-	}
-	if s.IP != "" {
-		service.IP = s.IP
-	}
-	if s.Port != 0 {
-		service.Port = s.Port
-	}
-	if s.Rely != nil {
-		service.Rely = s.Rely
-	}
-	if s.Schema != nil {
-		service.Schema = s.Schema
-	}
-	service.keepalive = now
-	return service, nil
-}
-
 func (sm *ServiceMap) Get(id int32) (*Service, error) {
 	sm.RLock()
 	defer sm.RUnlock()

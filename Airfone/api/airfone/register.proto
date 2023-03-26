@@ -36,6 +36,8 @@ message UpdateRequest{
     string          ip            = 4; // ip地址
     int32           port          = 5; // 端口
     int32           id            = 6; // id
+    bool            needSchema    = 7; // 是否需要修改 Schema
+    bool            needRelies    = 8; // 是否需要修改 Schema
 }
 
 message UpdateResponse{

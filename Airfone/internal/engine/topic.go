@@ -158,13 +158,18 @@ func (t *Topic) RemovePendingService(now int64, id int32) (*Service, error) {
 	return s, nil
 }
 
-// 修改 Service 信息
-func (t *Topic) UpdateRunningService(now int64, service *Service) (*Service, error) {
-	s, err := t.running.Update(now, service)
-	if err != nil {
-		return nil, err
+// 移除该 id 的 service, 无论他在哪个列表中
+func (t *Topic) RemoveService(now int64, id int32) (*Service, error) {
+	var (
+		serv *Service
+		err  error
+	)
+	if serv, err = t.RemoveRunningService(now, id); err != nil {
+		if serv, err = t.RemovePendingService(now, id); err != nil {
+			return nil, err
+		}
 	}
-	return s, nil
+	return serv, nil
 }
 
 // 复活
@@ -250,9 +255,9 @@ func (t *Topic) PendX(now int64, id int32) error {
 func (t *Topic) Conform(now int64, id int32) error {
 	var (
 		serv *Service
-		err error
+		err  error
 	)
-	if serv, err = t.running.Get(id);err != nil {
+	if serv, err = t.running.Get(id); err != nil {
 		return err
 	}
 	serv.keepalive = now

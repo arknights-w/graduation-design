@@ -77,8 +77,7 @@ func (data *Data) RemoveService(topicName string, now int64, id int32) (*Service
 //
 //	这个方法可以修改除 id, topic 以外的其他全部属性
 //	思路：获取 topic，未获取到报错
-//	更新 service，出错之后先尝试从 pending 队列中将其复活，出错则返回
-//	复活成功后，再次尝试更新，若出错则返回
+//	从 topic 移除并得到该 service，然后修改他的属性，再塞入
 func (data *Data) UpdateService(topicName string, now int64, serv *Service) (*Service, error) {
 	var (
 		topic   *Topic
@@ -89,11 +88,30 @@ func (data *Data) UpdateService(topicName string, now int64, serv *Service) (*Se
 	if err != nil {
 		return nil, err
 	}
-	if service, err = topic.UpdateRunningService(now, serv); err != nil {
-		if _, err = topic.Resurrect(now, serv.ID); err != nil {
-			return nil, err
-		}
-		return topic.UpdateRunningService(now, serv)
+	// 移除并获取到该服务
+	if service, err = topic.RemoveService(now, serv.ID); err != nil {
+		return nil, err
+	}
+	// 服务数据更新
+	service.Status = serv.Status
+	if serv.IP != "" {
+		service.IP = serv.IP
+	}
+	if serv.Port != 0 {
+		service.Port = serv.Port
+	}
+	if serv.Schema != nil {
+		service.Schema = serv.Schema
+	}
+	if serv.Rely != nil {
+		service.Rely = serv.Rely
+	}
+	// 根据状态重新返还到列表中
+	switch service.Status {
+	case HeartBeat_PENDING:
+		topic.AddPendingService(now, service)
+	case HeartBeat_CHANGED, HeartBeat_RUNNING:
+		topic.AddRunningService(now, service)
 	}
 	return service, nil
 }
