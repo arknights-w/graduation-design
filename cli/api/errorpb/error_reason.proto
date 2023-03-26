@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package errorpb;
+import "errors/errors.proto";
+
+option go_package = "Airfone/api/errorpb;errorpb";
+option java_multiple_files = true;
+option java_package = "errorpb";
+option objc_class_prefix = "APIErrorpb";
+
+// 通用错误     100-200
+// 服务注册错误 201-300
+// 服务发现错误 301-400
+// 心跳错误     401-500
+
+enum ErrorReason {
+
+  // 通用错误     100-200
+  option (errors.default_code) = 100;               // 默认错误码 100
+  FAILURE_UNSPECIFIED  = 0  [(errors.code) =  99];  // 未知错误
+  DEFAULT              = 100[(errors.code) = 100];  // 默认错误
+  SEARCH_INVALID       = 101[(errors.code) = 101];  // 查询目标不存在
+  UPDATE_INVALID       = 102[(errors.code) = 102];  // 更新目标不存在
+  DELETE_INVALID       = 103[(errors.code) = 103];  // 删除目标不存在
+  INSERT_ALREADY_EXIST = 104[(errors.code) = 104];  // 插入目标已存在
+
+  // 服务注册错误 201-300
+
+
+  // 服务发现错误 301-400
+
+
+  // 心跳错误     401-500
+
+
+  // to delete
+  USER_NOT_FOUND = 1[(errors.code) = 2];
+}

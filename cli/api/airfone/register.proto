@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package api.airfone;
+
+import "airfone/common.proto";
+
+option go_package = "Airfone/api/airfone;airfone";
+option java_multiple_files = true;
+option java_package = "api.airfone";
+
+// 注册
+message RegisterRequest{
+    repeated Schema schema = 1; // 元数据
+    repeated string relies = 2; // 依赖的 topic 名
+    string          topic  = 3; // 服务名称
+    string          ip     = 4; // ip地址
+    int32           port   = 5; // 端口
+}
+
+message RegisterResponse{
+    Service service = 1; // 返回的服务
+}
+
+// 更新
+//
+//  这是主动更新，当服务自身的内容，ip端口，依赖等有所变化时，主动发起的更新
+//  
+//  相比于心跳，是被依赖的服务出现变化时，被动的通知该服务改变
+//  
+//  值得注意的是，不允许修改 topic，当修改 topic 意味着该服务直接变成了另一类服务，
+//  应该注销该服务，并重新注册为新的服务
+message UpdateRequest{
+    repeated Schema schema        = 1; // 元数据
+    repeated string relies        = 2; // 依赖的 topic 名
+    string          topic         = 3; // 主题 
+    string          ip            = 4; // ip地址
+    int32           port          = 5; // 端口
+    int32           id            = 6; // id
+    bool            needSchema    = 7; // 是否需要修改 Schema
+    bool            needRelies    = 8; // 是否需要修改 Schema
+}
+
+message UpdateResponse{
+    Service service = 1; // 返回的服务
+}
+
+// 注销
+message LogoutRequest{
+    string topic = 1; // 所在主题
+    int32  id    = 2; // id
+}
+
+message LogoutResponse{
+
+}

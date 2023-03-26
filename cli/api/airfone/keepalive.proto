@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package api.airfone;
+
+import "airfone/common.proto";
+
+option go_package = "Airfone/api/airfone;airfone";
+option java_multiple_files = true;
+option java_package = "api.airfone";
+
+message KeepAliveRequest{
+    string topic = 1; // 主题
+    int32  id    = 2; // id
+}
+
+message KeepAliveResponse{
+    Keepalive keepalive = 1;
+}
+
+// 在检测到依赖修改后，需要发送 conform 保证自己的服务可用
+message ConformRequest{
+    string topic = 1;
+    int32 id = 2;
+}
+
+message ConformResponse{
+
+}

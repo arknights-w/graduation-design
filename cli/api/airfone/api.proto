@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package api.airfone;
+
+import "airfone/register.proto";
+import "airfone/keepalive.proto";
+
+option go_package = "Airfone/api/airfone;airfone";
+option java_multiple_files = true;
+option java_package = "api.airfone";
+
+service Airfone {
+	rpc Register  (RegisterRequest)  returns (RegisterResponse);  // 服务注册
+	rpc Update    (UpdateRequest)    returns (UpdateResponse);	  // 服务更新(主动)
+	rpc Logout    (LogoutRequest)    returns (LogoutResponse);    // 服务注销
+	rpc KeepAlive (KeepAliveRequest) returns (KeepAliveResponse); // 心跳
+	rpc Conform	  (ConformRequest)	 returns (ConformResponse);   // 在检测到依赖修改后，需要发送 conform 保证自己的服务可用
+}
