@@ -1,7 +1,7 @@
 package cli
 
 import (
-	pb "Airfone/api/airfone"
+	pb "cli/api/airfone"
 	"context"
 	"fmt"
 	"time"
@@ -27,6 +27,7 @@ type Config struct {
 
 type client struct {
 	proto  pb.AirfoneClient
+	conn   *grpc.ClientConn
 	ctx    context.Context
 	cancel chan struct{}
 
@@ -55,6 +56,7 @@ func NewCli(url string) (*client, error) {
 	}
 
 	cli := pb.NewAirfoneClient(conn)
+	client.conn = conn
 	client.proto = cli
 	return client, nil
 }
@@ -227,13 +229,15 @@ func (cli *client) Update(cfg *UpdateConfig) error {
 
 // 注销
 func (cli *client) Logout() error {
-	cli.cancel <- struct{}{}
-	cli.ctx.Done()
-	_, err := cli.proto.Logout(cli.ctx, &pb.LogoutRequest{
+	if _, err := cli.proto.Logout(cli.ctx, &pb.LogoutRequest{
 		Topic: cli.Topic,
 		Id:    cli.Id,
-	})
-	if err != nil {
+	}); err != nil {
+		return err
+	}
+	cli.cancel <- struct{}{}
+	cli.ctx.Done()
+	if err := cli.conn.Close(); err != nil {
 		return err
 	}
 	return nil

@@ -15,7 +15,7 @@ type Service struct {
 func (s *Service) ToProto() *pb.Service {
 	var (
 		relies  = make([]*pb.Rely, len(s.Rely))
-		schema  = make([]*pb.Schema, len(s.Rely))
+		schema  = make([]*pb.Schema, len(s.Schema))
 		service = &pb.Service{
 			Topic:  s.Topic,
 			Ip:     s.IP,
@@ -27,7 +27,7 @@ func (s *Service) ToProto() *pb.Service {
 	for i, r := range s.Rely {
 		relies[i] = &pb.Rely{
 			Topic: r.Topic,
-			Ip:   r.IP,
+			Ip:    r.IP,
 			Port:  int32(r.Port),
 			Id:    r.ID,
 		}

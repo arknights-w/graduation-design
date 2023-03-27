@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	pb "Airfone/api/airfone"
 	"Airfone/internal/biz"
@@ -24,7 +25,9 @@ func NewAirfoneService(kuc *biz.KeepAliveUsecase, ruc *biz.RegisterUsecase) *Air
 
 func (s *AirfoneService) Register(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
 	var (
-		service  = &irepo.Service{}
+		service = &irepo.Service{
+			Service: &engine.Service{},
+		}
 		relies   = req.Relies
 		schema   = make([]*engine.Schema, len(req.Schema))
 		response = &pb.RegisterResponse{}
@@ -46,12 +49,15 @@ func (s *AirfoneService) Register(ctx context.Context, req *pb.RegisterRequest) 
 	}
 
 	response.Service = s2.ToProto()
+	fmt.Printf("服务 %v id: %v 注册成功, %v:%v   \n", s2.Topic, s2.ID, s2.IP, s2.Port)
 	return response, nil
 }
 
 func (s *AirfoneService) Update(ctx context.Context, req *pb.UpdateRequest) (*pb.UpdateResponse, error) {
 	var (
-		service  = &irepo.Service{}
+		service = &irepo.Service{
+			Service: &engine.Service{},
+		}
 		schema   = make([]*engine.Schema, len(req.Schema))
 		response = &pb.UpdateResponse{}
 		err      error
@@ -69,13 +75,13 @@ func (s *AirfoneService) Update(ctx context.Context, req *pb.UpdateRequest) (*pb
 		}
 		service.Schema = schema
 	}
-	if req.NeedRelies{
-		if len(req.Relies) == 0{
+	if req.NeedRelies {
+		if len(req.Relies) == 0 {
 			service, err = s.ruc.Update(ctx, service, make([]string, 0))
-		}else {
+		} else {
 			service, err = s.ruc.Update(ctx, service, req.Relies)
 		}
-	}else {
+	} else {
 		service, err = s.ruc.Update(ctx, service, nil)
 	}
 	if err != nil {
@@ -83,25 +89,31 @@ func (s *AirfoneService) Update(ctx context.Context, req *pb.UpdateRequest) (*pb
 	}
 
 	response.Service = service.ToProto()
+	fmt.Printf("服务 %v id: %v 更新成功, %v:%v   \n", service.Topic, service.ID, service.IP, service.Port)
 	return response, nil
 }
 
 func (s *AirfoneService) Logout(ctx context.Context, req *pb.LogoutRequest) (*pb.LogoutResponse, error) {
 	var (
-		serv = &irepo.Service{}
-		err  error
+		serv = &irepo.Service{
+			Service: &engine.Service{},
+		}
+		err error
 	)
 	serv.Topic = req.Topic
 	serv.ID = req.Id
 	if err = s.ruc.Logout(ctx, serv); err != nil {
 		return nil, err
 	}
+	fmt.Printf("服务 %v id: %v 注销成功\n", serv.Topic, serv.ID)
 	return &pb.LogoutResponse{}, nil
 }
 
 func (s *AirfoneService) KeepAlive(ctx context.Context, req *pb.KeepAliveRequest) (*pb.KeepAliveResponse, error) {
 	var (
-		hb  = &irepo.HeartBeat{}
+		hb = &irepo.HeartBeat{
+			HeartBeat: &engine.HeartBeat{},
+		}
 		res = &pb.KeepAliveResponse{}
 		err error
 	)
@@ -112,18 +124,22 @@ func (s *AirfoneService) KeepAlive(ctx context.Context, req *pb.KeepAliveRequest
 		return nil, err
 	}
 	res.Keepalive = hb.ToProto()
+	fmt.Printf("服务 %v id: %v 心跳检测\n", hb.Topic, hb.ID)
 	return res, nil
 }
 
 func (s *AirfoneService) Conform(ctx context.Context, req *pb.ConformRequest) (*pb.ConformResponse, error) {
 	var (
-		hb = &irepo.HeartBeat{}
+		hb = &irepo.HeartBeat{
+			HeartBeat: &engine.HeartBeat{},
+		}
 		err error
 	)
 	hb.ID = req.Id
 	hb.Topic = req.Topic
 	if err = s.kuc.Conform(ctx, hb); err != nil {
-		return nil,err
+		return nil, err
 	}
-	return &pb.ConformResponse{},nil
+	fmt.Printf("服务 %v id: %v 服务运行确认\n", hb.Topic, hb.ID)
+	return &pb.ConformResponse{}, nil
 }

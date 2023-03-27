@@ -42,8 +42,10 @@ func NewTopic(log *log.Helper) *Topic {
 	// 每三秒执行一次，将 running 心跳间隔 DURATION_PENDING 以上的放入 pending
 	// 将 pending 心跳间隔 DURATION_DROPPED 以上的删除
 	go func() {
+		log.Info("-----------------开启一个 topic 的异步协程-----------------")
 		for {
 			<-ticker.C
+			log.Info("-----------------异步协程探测-----------------")
 			now := time.Now()
 			// 这里是处理 1
 			topic.Lock()
