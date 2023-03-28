@@ -1,0 +1,110 @@
+<script>
+    function submit(){
+        let acct = document.querySelector("#acct").value
+        let pwd = document.querySelector("#pwd").value
+        let url = "http://"+window.location.host + "/submit"
+        let data = JSON.stringify({
+                "account":acct,
+                "password":pwd
+            })
+        console.log(url)
+        fetch(url,{
+            method: 'POST',
+            body:data,
+            headers: new Headers({
+                'Content-Type': 'application/json'
+            }),
+        }).then(res => res.json())
+        .catch(error => console.log("error: ",error))
+        .then(response => console.log("sucess: ",response))
+    }
+</script>
+
+<html>
+    <section>
+        <div class="background"></div>
+        <form class="main">
+            <input type="text" id="acct" placeholder={{.account}}>
+            <input type="text" id="pwd" placeholder={{.pwd}}>
+            <div onclick="submit()">{{.submit}}</div>
+        </form>
+    </section>
+</html>
+
+<style>
+    html,body{
+        padding: 0;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    section{
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 25vw;
+        height: 30vh;
+    }
+    .background{
+        width: 99%;
+        height: 98%;
+        position: absolute;
+        top: 0.5rem;
+        background: rgba(21, 0, 255, 0.303);
+        filter: blur(0.5rem);
+    }
+    .main{
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        border-radius: 10px;
+        background: linear-gradient(to bottom, #f5f9ff, #e3f4ff);
+        margin: 0;
+    }
+    .main > *{
+        /*这个属性是最外层的那个focus的白框，去掉*/
+        outline: none;
+        /*这个是自带的略立体的样式，很丑，去掉*/
+        border: none;
+
+        top: 1rem;
+        height: 2rem;
+        text-shadow: 0 0 10px #be14dc2b;
+        box-shadow: 0 3px 7px 0 rgba(123, 20, 220, 0.263);
+        border-radius: 20px;
+        background: rgb(255, 255, 255);
+        color: rgb(101, 87, 87);
+        caret-color:#ffa502;
+        font-size: large;
+        margin: 1rem;
+        padding: 0 1rem 0 1rem;
+    }
+    input:first-of-type{
+        margin-top: 2rem;
+    }
+    input:focus[type="text"]{
+        outline: 1px solid #abc6ec; 
+    }
+    input::placeholder{
+        color: rgb(118, 103, 103);
+        font-weight: lighter;
+    }
+    .main > div{
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        letter-spacing: 1rem;
+        font-weight: lighter;
+        background: rgb(204, 255, 252);
+        box-shadow: 0 3px 7px 0 rgba(20, 43, 220, 0.263);
+        transition: all 0.3s;
+    }
+    .main > div:hover{
+        background: rgb(129, 255, 219);
+    }
+</style>

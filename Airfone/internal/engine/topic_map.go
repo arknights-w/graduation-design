@@ -2,6 +2,7 @@ package engine
 
 import (
 	"Airfone/api/errorpb"
+	"fmt"
 )
 
 // TopicMap about
@@ -59,6 +60,7 @@ func (tm *Data) getXTopic(name string) (*Topic, error) {
 	tm.Lock()
 	defer tm.Unlock()
 	if topic, ok = tm.topics[name]; !ok {
+		fmt.Println("-----------------", name, "-----------------")
 		topic = NewTopic(tm.log)
 		tm.topics[name] = topic
 	}

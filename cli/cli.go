@@ -87,7 +87,7 @@ func (cli *client) Register(cfg *Config) error {
 	// 如果状态为 changed 则需要更新依赖服务，重新向服务端发送确认信息，确保服务可用
 	if cli.Status == pb.HeartBeatType_HeartBeat_CHANGED {
 		if _, err = cli.proto.Conform(ctx, &pb.ConformRequest{
-			Topic: cli.Ip,
+			Topic: cli.Topic,
 			Id:    cli.Id,
 		}); err != nil {
 			cancelFunc()
@@ -120,8 +120,12 @@ func (cli *client) keepalive(cancel func()) {
 				fmt.Println(err)
 				continue
 			}
-			if res.Keepalive.Status == pb.HeartBeatType_HeartBeat_CHANGED {
+			switch res.Keepalive.Status {
+			case pb.HeartBeatType_HeartBeat_PENDING:
+				fmt.Println("心跳: 服务暂停")
+			case pb.HeartBeatType_HeartBeat_CHANGED:
 				// 若心跳状态为 changed, 则需要再次确认
+				fmt.Println("心跳: 服务变更")
 				cli.updateRelies(res.Keepalive.Relies)
 				_, err := cli.proto.Conform(cli.ctx, &pb.ConformRequest{
 					Topic: cli.Topic,
@@ -132,7 +136,7 @@ func (cli *client) keepalive(cancel func()) {
 					continue
 				}
 				cli.Status = pb.HeartBeatType_HeartBeat_RUNNING
-			} else if res.Keepalive.Status == pb.HeartBeatType_HeartBeat_DROPPED {
+			case pb.HeartBeatType_HeartBeat_DROPPED:
 				// todo
 				// 若心跳状态为 dropped, 则需要重新注册
 				var (
@@ -156,7 +160,7 @@ func (cli *client) keepalive(cancel func()) {
 				// 如果状态为 changed 则需要更新依赖服务，重新向服务端发送确认信息，确保服务可用
 				if cli.Status == pb.HeartBeatType_HeartBeat_CHANGED {
 					if _, err = cli.proto.Conform(cli.ctx, &pb.ConformRequest{
-						Topic: cli.Ip,
+						Topic: cli.Topic,
 						Id:    cli.Id,
 					}); err != nil {
 						fmt.Println(err)
@@ -213,10 +217,12 @@ func (cli *client) Update(cfg *UpdateConfig) error {
 	switch cli.Status {
 	case pb.HeartBeatType_HeartBeat_PENDING:
 		// todo
+		fmt.Println("更新: 服务暂停")
 	case pb.HeartBeatType_HeartBeat_RUNNING:
 		// todo
 	case pb.HeartBeatType_HeartBeat_CHANGED:
 		// todo
+		fmt.Println("更新: 服务变更")
 		if _, err = cli.proto.Conform(cli.ctx, &pb.ConformRequest{
 			Topic: cli.Topic,
 			Id:    cli.Id,

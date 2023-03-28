@@ -21,7 +21,7 @@ type clientLogger struct {
 
 func (cl clientLogger) Write(data []byte) (int, error) {
 	b := bytes.NewBuffer(data)
-	res, err := http.Post(cl.url+"/log", "text/plain", b)
+	res, err := http.Post("http://"+cl.url+"/log", "text/plain", b)
 	if err != nil {
 		return 0, err
 	}

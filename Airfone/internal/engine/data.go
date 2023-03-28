@@ -131,9 +131,10 @@ type innerTopic struct {
 //	将所有的 rely 塞入 service, 然后返回
 func (data *Data) Discover(now int64, service *Service, relies []string) (*Service, error) {
 	var (
-		topics = make([]*innerTopic, 0, len(relies))
-		status = HeartBeat_RUNNING
-		rely   []*Rely
+		topics  = make([]*innerTopic, 0, len(relies))
+		status  = HeartBeat_RUNNING
+		relyMap map[string]*Rely
+		rely    []*Rely
 	)
 	// 不需要依赖的话直接跳过
 	if len(relies) == 0 {
@@ -152,7 +153,11 @@ func (data *Data) Discover(now int64, service *Service, relies []string) (*Servi
 	}
 	data.RUnlock()
 
-	rely, status = data.discover(now, topics)
+	relyMap, status = data.discover(now, topics)
+	rely = make([]*Rely, 0, len(relyMap))
+	for _, r := range relyMap {
+		rely = append(rely, r)
+	}
 
 	// rely 塞入 service，返回
 	service.Rely = rely
@@ -210,7 +215,19 @@ func (data *Data) Check(now int64, hb *HeartBeat) (*HeartBeat, error) {
 		// 若依赖有故障则修改状态为changed，并进行一次服务发现
 		// 若服务发现后 serv 状态为pending，则状态修改为 pending
 		if len(repyTopic) != 0 {
-			relies, status = data.discover(now, repyTopic)
+			var relyMap map[string]*Rely
+			relyMap, status = data.discover(now, repyTopic)
+			relies = make([]*Rely, len(relyMap))
+			// 更新服务的依赖
+			for i := 0; i < len(serv.Rely); i++ {
+				if r, ok := relyMap[serv.Rely[i].Topic]; ok {
+					serv.Rely[i] = r
+				}
+			}
+			// 将 map 转换为 list,返回给前端
+			for _, r := range relyMap {
+				relies = append(relies, r)
+			}
 		}
 	}
 
@@ -247,9 +264,9 @@ func (data *Data) Conform(now int64, topicName string, id int32) error {
 //	最终返回的状态可能是
 //	当所有主题都能正常找到新依赖时，返回changed
 //	当有主题中没有可用依赖时，返回pending
-func (data *Data) discover(now int64, topics []*innerTopic) ([]*Rely, HeartBeatType) {
+func (data *Data) discover(now int64, topics []*innerTopic) (map[string]*Rely, HeartBeatType) {
 	var (
-		rely   = make([]*Rely, 0, len(topics))
+		rely   = make(map[string]*Rely)
 		status = HeartBeat_CHANGED
 	)
 	// 遍历 topic，取出其中心跳正常的 service
@@ -263,14 +280,14 @@ func (data *Data) discover(now int64, topics []*innerTopic) ([]*Rely, HeartBeatT
 		// 则将当前传入的 service 状态置为 pending
 		if len(list) > 0 {
 			serv = list[rand.Intn(len(list))]
-			rely = append(rely, &Rely{
+			rely[t.topicName] = &Rely{
 				Keepalive: &serv.keepalive,
 				Status:    &serv.Status,
 				Topic:     t.topicName,
 				IP:        serv.IP,
 				ID:        serv.ID,
 				Port:      serv.Port,
-			})
+			}
 		} else {
 			status = HeartBeat_PENDING
 		}
